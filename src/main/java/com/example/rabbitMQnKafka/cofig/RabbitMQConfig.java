@@ -27,6 +27,12 @@ public class RabbitMQConfig {
     @Value("${spring.rabbitmq.password}")
     public String password;
 
+    @Value("${spring.rabbitmq.virtual-host}")
+    public String virtualHost;
+
+    @Value("${spring.rabbitmq.connectionTimeout}")
+    public int connectionTimeout;
+
     @Value("${rabbit.queueA}")
     public String queueA;
 
@@ -40,18 +46,33 @@ public class RabbitMQConfig {
     public String routingKey;
 
     @Bean
-    public Queue queue() {
-        return new Queue(queueA);
+    public Queue queueA() {
+        return new Queue(queueA, true);
     }
 
     @Bean
-    public TopicExchange exchange() {
+    public Queue queueB(){
+        return new Queue(queueB, true);
+    }
+
+    @Bean
+    public TopicExchange exchangeA() {
         return new TopicExchange(exchange);
     }
 
     @Bean
-    public Binding binding() {
-        return BindingBuilder.bind(queue()).to(exchange()).with(routingKey);
+    public TopicExchange exchangeB(){
+        return new TopicExchange(exchange);
+    }
+
+    @Bean
+    public Binding bindingA(){
+        return BindingBuilder.bind(queueB()).to(exchangeB()).with(routingKey);
+    }
+
+    @Bean
+    public Binding bindingB() {
+        return BindingBuilder.bind(queueA()).to(exchangeA()).with(routingKey);
     }
 
     @Bean
@@ -61,6 +82,8 @@ public class RabbitMQConfig {
         cachingConnectionFactory.setPort(port);
         cachingConnectionFactory.setUsername(username);
         cachingConnectionFactory.setPassword(password);
+        cachingConnectionFactory.setVirtualHost(virtualHost);
+        cachingConnectionFactory.setConnectionTimeout(connectionTimeout);
         return cachingConnectionFactory;
     }
 

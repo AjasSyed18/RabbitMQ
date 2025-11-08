@@ -1,5 +1,6 @@
 package com.example.rabbitMQnKafka.cofig;
 
+import com.example.rabbitMQnKafka.Helper.RabbitMqProperties;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.Queue;
@@ -8,6 +9,7 @@ import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -33,46 +35,49 @@ public class RabbitMQConfig {
     @Value("${spring.rabbitmq.connectionTimeout}")
     public int connectionTimeout;
 
-    @Value("${rabbit.queueA}")
+    /*@Value("${rabbit.service.queueA}")
     public String queueA;
 
-    @Value("${rabbit.queueB}")
+    @Value("${rabbit.service.queueB}")
     public String queueB;
 
-    @Value("${rabbit.exchange_name}")
+    @Value("${rabbit.service.exchange_name}")
     public String exchange;
 
-    @Value("${rabbit.routing_key}")
-    public String routingKey;
+    @Value("${rabbit.service.routing_key}")
+    public String routingKey;*/
+
+    @Autowired
+    private RabbitMqProperties rabbitMqProperties;
 
     @Bean
     public Queue queueA() {
-        return new Queue(queueA, true);
+        return new Queue(rabbitMqProperties.getQueueA(), true);
     }
 
     @Bean
     public Queue queueB(){
-        return new Queue(queueB, true);
+        return new Queue(rabbitMqProperties.getQueueB(), true);
     }
 
     @Bean
     public TopicExchange exchangeA() {
-        return new TopicExchange(exchange);
+        return new TopicExchange(rabbitMqProperties.getExchange_name());
     }
 
     @Bean
     public TopicExchange exchangeB(){
-        return new TopicExchange(exchange);
+        return new TopicExchange(rabbitMqProperties.getExchange_name());
     }
 
     @Bean
     public Binding bindingA(){
-        return BindingBuilder.bind(queueB()).to(exchangeB()).with(routingKey);
+        return BindingBuilder.bind(queueB()).to(exchangeB()).with(rabbitMqProperties.getRouting_key());
     }
 
     @Bean
     public Binding bindingB() {
-        return BindingBuilder.bind(queueA()).to(exchangeA()).with(routingKey);
+        return BindingBuilder.bind(queueA()).to(exchangeA()).with(rabbitMqProperties.getRouting_key());
     }
 
     @Bean

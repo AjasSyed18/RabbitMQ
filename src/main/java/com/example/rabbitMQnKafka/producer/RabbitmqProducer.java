@@ -1,5 +1,6 @@
 package com.example.rabbitMQnKafka.producer;
 
+import com.example.rabbitMQnKafka.Helper.RabbitMqProperties;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -19,5 +20,16 @@ public class RabbitmqProducer {
     public void SendAndReceive(Message message) {
         log.info("Entered into SendAndReceive:::");
         rabbitTemplate.sendAndReceive(message);
+    }
+
+    @Autowired
+    private RabbitMqProperties rabbitMqProperties;
+
+    public void sendMessage(Message msg) {
+        rabbitTemplate.send(
+                rabbitMqProperties.getExchange_name(),   // exchange
+                rabbitMqProperties.getRouting_key(),     // routing key
+                msg                                      // message
+        );
     }
 }

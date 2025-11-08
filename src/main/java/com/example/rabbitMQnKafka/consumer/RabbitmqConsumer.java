@@ -1,9 +1,11 @@
 package com.example.rabbitMQnKafka.consumer;
 
+import com.example.rabbitMQnKafka.Helper.RabbitMqProperties;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageBuilder;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -12,11 +14,14 @@ import org.springframework.stereotype.Component;
 @Log4j2
 public class RabbitmqConsumer {
 
-    @Value("${rabbit.queueA}")
+    /*@Value("${rabbit.service.queueA}")
     public String queueA;
 
-    @Value("${rabbit.queueB}")
-    public String queueB;
+    @Value("${rabbit.service.queueB}")
+    public String queueB;*/
+
+    @Autowired
+    private RabbitMqProperties rabbitMqProperties;
 
     /*@RabbitListener(queues = "#{rabbitMqProperties.getQueueA()}")
     public Message receiveMessage(String message) {
@@ -37,7 +42,7 @@ public class RabbitmqConsumer {
         }
     }*/
 
-    @RabbitListener(queues = "#{rabbitMqProperties.getQueueA()}")
+    /*@RabbitListener(queues = "${rabbitMqProperties.getQueueA}")
     public void receiveMessage(String message) {
         log.info("Consuming message from rabbitMq:::::");
         try {
@@ -45,10 +50,10 @@ public class RabbitmqConsumer {
         } catch (Exception e) {
             log.error("Failed to process message: {}. Error: {}", message, e.getMessage(), e);
         }
-    }
+    }*/
 
 
-    @RabbitListener(queues = "north")
+    @RabbitListener(id = "consumerTopicA", queues = "${rabbit.service.queueA}")
     public void consumeMsgNorth(String message) {
         try {
             log.info("Received message: {} from queue -> 'north'", message);
@@ -60,7 +65,7 @@ public class RabbitmqConsumer {
         }
     }
 
-    @RabbitListener(queues = "south")
+    @RabbitListener(id = "consumerTopicB", queues = "${rabbit.service.queueB}")
     public void consumeMsgSouth(String message) {
         try {
             log.info("Received message: {} from queue -> 'south'", message);

@@ -7,10 +7,3 @@ services:
     ports:
       - "15672:15672"
       - "5672:5672"
-
-networks:
-  kafka-net:
-    driver: bridge
-
-volumes:
-  kafka_data:

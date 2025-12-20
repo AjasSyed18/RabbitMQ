@@ -28,6 +28,7 @@ public class RabbitmqController {
     @Autowired
     private ToggleRabbitmqConsumer toggleRabbitmqConsumer;
 
+    //remove the comment
     @PostMapping(value = "/publishMsgDemo", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> publish(@RequestParam String strMessage) {
         log.info("Inside demo ::::: {}", strMessage);

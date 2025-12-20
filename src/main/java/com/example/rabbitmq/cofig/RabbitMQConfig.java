@@ -1,6 +1,6 @@
-package com.example.rabbitMQnKafka.cofig;
+package com.example.rabbitmq.cofig;
 
-import com.example.rabbitMQnKafka.Helper.RabbitMqProperties;
+import com.example.rabbitmq.Helper.RabbitMqProperties;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.Queue;
@@ -47,8 +47,11 @@ public class RabbitMQConfig {
     @Value("${rabbit.service.routing_key}")
     public String routingKey;*/
 
-    @Autowired
     private RabbitMqProperties rabbitMqProperties;
+    @Autowired
+    public RabbitMQConfig(RabbitMqProperties rabbitMqProperties) {
+        this.rabbitMqProperties = rabbitMqProperties;
+    }
 
     @Bean
     public Queue queueA() {

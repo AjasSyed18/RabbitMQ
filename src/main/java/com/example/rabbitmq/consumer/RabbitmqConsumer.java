@@ -1,13 +1,9 @@
-package com.example.rabbitMQnKafka.consumer;
+package com.example.rabbitmq.consumer;
 
-import com.example.rabbitMQnKafka.Helper.RabbitMqProperties;
+import com.example.rabbitmq.Helper.RabbitMqProperties;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.amqp.core.Message;
-import org.springframework.amqp.core.MessageBuilder;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 
 @Component

@@ -1,7 +1,7 @@
-package com.example.rabbitMQnKafka.controller;
+package com.example.rabbitmq.controller;
 
-import com.example.rabbitMQnKafka.cofig.ToggleRabbitmqConsumer;
-import com.example.rabbitMQnKafka.producer.RabbitmqProducer;
+import com.example.rabbitmq.cofig.ToggleRabbitmqConsumer;
+import com.example.rabbitmq.producer.RabbitmqProducer;
 import lombok.extern.log4j.Log4j2;
 import org.json.JSONObject;
 import org.springframework.amqp.core.Message;

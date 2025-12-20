@@ -1,6 +1,6 @@
-package com.example.rabbitMQnKafka.producer;
+package com.example.rabbitmq.producer;
 
-import com.example.rabbitMQnKafka.Helper.RabbitMqProperties;
+import com.example.rabbitmq.Helper.RabbitMqProperties;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;

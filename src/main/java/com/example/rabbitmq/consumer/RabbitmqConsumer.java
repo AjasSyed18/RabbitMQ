@@ -2,8 +2,10 @@ package com.example.rabbitmq.consumer;
 
 import com.example.rabbitmq.Helper.RabbitMqProperties;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -48,11 +50,13 @@ public class RabbitmqConsumer {
         }
     }*/
 
-
     @RabbitListener(id = "consumerTopicA", queues = "${rabbit.service.queueA}")
-    public void consumeMsgNorth(String message) {
+    public void consumeMsgNorthMessage(Message message) {
         try {
             log.info("Received message: {} from queue -> 'north'", message);
+            byte[] messageBody = message.getBody();
+            String actualMsgStr = new String(messageBody);
+            log.info("Message -> {}", actualMsgStr);
            /* byte[] bytes = message.getBody();
             String bytesString = bytes.toString();
             log.info("Message received -> {} from queue -> 'north'", bytesString);*/
@@ -73,4 +77,12 @@ public class RabbitmqConsumer {
         }
     }
 
+    @RabbitListener(id = "consumeQueue1", queues = "${rabbit.service.queue1}")
+    public void consumeMsgQueue1(@Payload String message) {
+        try {
+            log.info("Received message: {} from queue -> 'queue1'", message);
+        } catch (Exception e) {
+            log.error("Failed to process message: {}. Error: {}", message, e.getMessage(), e);
+        }
+    }
 }

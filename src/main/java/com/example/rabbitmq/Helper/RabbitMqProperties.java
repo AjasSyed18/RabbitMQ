@@ -13,6 +13,10 @@ public class RabbitMqProperties {
 
     public String queueA;
     public String queueB;
+    public String queue1;
+    public String queue2;
+    public String queue3;
     private String exchange_name;
     private String routing_key;
+    private String fanout_exchange;
 }

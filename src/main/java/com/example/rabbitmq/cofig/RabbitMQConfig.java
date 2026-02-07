@@ -1,10 +1,7 @@
 package com.example.rabbitmq.cofig;
 
 import com.example.rabbitmq.Helper.RabbitMqProperties;
-import org.springframework.amqp.core.Binding;
-import org.springframework.amqp.core.BindingBuilder;
-import org.springframework.amqp.core.Queue;
-import org.springframework.amqp.core.TopicExchange;
+import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -81,6 +78,37 @@ public class RabbitMQConfig {
     @Bean
     public Binding bindingB() {
         return BindingBuilder.bind(queueA()).to(exchangeA()).with(rabbitMqProperties.getRouting_key());
+    }
+
+    /*Fan-out Exchange*/
+    @Bean
+    public Queue queue1() {
+        return new Queue(rabbitMqProperties.getQueue1(), true);
+    }
+
+    @Bean
+    public Queue queue2() {
+        return new Queue(rabbitMqProperties.getQueue2(), true);
+    }
+
+    @Bean
+    public Queue queue3() {
+        return new Queue(rabbitMqProperties.getQueue3(), true);
+    }
+    @Bean
+    public FanoutExchange fanoutExchange(){ return new FanoutExchange(rabbitMqProperties.getFanout_exchange()); }
+
+    @Bean
+    public Binding fanOutBinding() {
+        return BindingBuilder.bind(queue1()).to(fanoutExchange());
+    }
+    @Bean
+    public Binding fanOutBinding2(){
+        return BindingBuilder.bind(queue2()).to(fanoutExchange());
+    }
+    @Bean
+    public Binding fanOutBinding3(){
+        return BindingBuilder.bind(queue3()).to(fanoutExchange());
     }
 
     @Bean

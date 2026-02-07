@@ -32,4 +32,11 @@ public class RabbitmqProducer {
                 msg                                      // message
         );
     }
+
+    public void publishFanOutMessage(Message msg) {
+        rabbitTemplate.convertAndSend(
+                rabbitMqProperties.getFanout_exchange(), // fan-out_exchange
+                "",                                      // routing key IGNORED in fanout
+                msg);                                    // message
+    }
 }

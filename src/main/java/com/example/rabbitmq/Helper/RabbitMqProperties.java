@@ -13,6 +13,7 @@ public class RabbitMqProperties {
     private Direct direct = new Direct();
     private Topic topic = new Topic();
     private Fanout fanout = new Fanout();
+    private Headers headers = new Headers();
 
     // =========================
     // DIRECT
@@ -51,5 +52,17 @@ public class RabbitMqProperties {
         private String queueAudit;
         private String queueNotification;
         private String queueAnalytics;
+    }
+
+    // =========================
+    // HEADER
+    // =========================
+    @Getter
+    @Setter
+    public static class Headers {
+        private String exchange;
+        private String queuePriority;
+        private String queueStandard;
+        private String matchType;
     }
 }

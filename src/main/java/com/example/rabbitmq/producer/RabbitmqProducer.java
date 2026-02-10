@@ -3,9 +3,12 @@ package com.example.rabbitmq.producer;
 import com.example.rabbitmq.Helper.RabbitMqProperties;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.amqp.core.Message;
+import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Properties;
 
 @Service
 @Log4j2
@@ -67,5 +70,31 @@ public class RabbitmqProducer {
                 rabbitMqProperties.getDirect().getExchangeKeySouth(),
                 msg
         );
+    }
+
+    public void publishHeadersPriorityMsg(String strMsg){
+        log.info("Published msg: {} \nto exchange: {}", strMsg, rabbitMqProperties.getHeaders().getExchange());
+        MessageProperties properties = new MessageProperties();
+        properties.setHeader("type", "priority");
+        properties.setHeader("region", "north");
+        Message message = new Message(strMsg.getBytes(), properties);
+        rabbitTemplate.convertAndSend(
+                "headers.exchange",
+                "", //routing key ignored
+                message);
+
+    }
+
+    public void publishHeadersStandardMsg(String strMsg){
+        log.info("Published msg: {} \nto exchange: {}", strMsg, rabbitMqProperties.getHeaders().getExchange());
+        MessageProperties properties = new MessageProperties();
+        properties.setHeader("type", "standard");
+        properties.setHeader("region", "south");
+        Message message = new Message(strMsg.getBytes(), properties);
+        rabbitTemplate.convertAndSend(
+                "headers.exchange",
+                "", //routing key ignored
+                message);
+
     }
 }

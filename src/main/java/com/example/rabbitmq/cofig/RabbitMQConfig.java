@@ -11,6 +11,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Configuration
 public class RabbitMQConfig {
 
@@ -153,6 +156,49 @@ public class RabbitMQConfig {
         return BindingBuilder.bind(fanoutAnalyticsQueue()).to(fanoutExchange());
     }
 
+    /* =========================
+   HEADER EXCHANGE
+   ========================= */
+    @Bean
+    public Queue queuePriority(){
+        return new Queue("headers.priority.queue", false, false, true);
+    }
+
+    @Bean
+    public Queue queueStandard(){
+        return new Queue("headers.standard.queue", false, false, true);
+    }
+
+    @Bean
+    public HeadersExchange headersExchange() {
+        return new HeadersExchange("headers.exchange");
+    }
+
+    @Bean
+    public Binding bindingPriority() {
+        Map<String, Object> headers = new HashMap<>();
+        headers.put("type", "priority");
+        headers.put("region", "north");
+
+        return BindingBuilder
+                .bind(queuePriority())
+                .to(headersExchange())
+                .whereAll(headers)
+                .match();
+    }
+
+    @Bean
+    public Binding bindingStandard() {
+        Map<String, Object> headers = new HashMap<>();
+        headers.put("type", "standard");
+        headers.put("region", "south");
+
+        return BindingBuilder
+                .bind(queueStandard())
+                .to(headersExchange())
+                .whereAll(headers)   // AND logic (recommended)
+                .match();
+    }
     /*----------------------------------------------------------------------------------------------------*/
     @Bean
     public ConnectionFactory connectionFactory() {

@@ -64,6 +64,7 @@ public class RabbitmqConsumer {
             log.error("Failed to process message: {}. Error: {}", message, e.getMessage(), e);
         }
     }
+
     @RabbitListener(id = "directConsumer2", queues = "${rabbit.service.direct.queue-south}")
     public void consumeDirectSouthMessage(Message message) {
         try {
@@ -128,6 +129,24 @@ public class RabbitmqConsumer {
     public void consumeMsgQueue3(@Payload String message) {
         try {
             log.info("queue -> 'queue3', Received message: {}", message);
+        } catch (Exception e) {
+            log.error("Failed to process message: {}. Error: {}", message, e.getMessage(), e);
+        }
+    }
+
+    @RabbitListener(id = "PriorityConsumer", queues = "${rabbit.service.headers.queue-priority}")
+    public void priorityConsumer(@Payload String message) {
+        try {
+            log.info("queue -> {}, Received message: {}", rabbitMqProperties.getHeaders().getQueuePriority(), message);
+        } catch (Exception e) {
+            log.error("Failed to process message: {}. Error: {}", message, e.getMessage(), e);
+        }
+    }
+
+    @RabbitListener(id = "StandardConsumer", queues = "${rabbit.service.headers.queue-priority}")
+    public void standardConsumer(@Payload String message) {
+        try {
+            log.info("queue -> {}, Received message: {}", rabbitMqProperties.getHeaders().getQueueStandard(), message);
         } catch (Exception e) {
             log.error("Failed to process message: {}. Error: {}", message, e.getMessage(), e);
         }

@@ -94,6 +94,16 @@ public class RabbitmqController {
         rabbitmqProducer.publishDirectSouthMessage(message);
     }
 
+    @PostMapping(value = "/publishHeadersPriority/{msg}")
+    public void publishHeadersPriority(@PathVariable("msg") String msg) {
+        rabbitmqProducer.publishHeadersPriorityMsg(msg);
+    }
+
+    @PostMapping(value = "/publishHeadersStandard/{msg}")
+    public void publishHeadersStandard(@PathVariable("msg") String msg) {
+        rabbitmqProducer.publishHeadersStandardMsg(msg);
+    }
+
     @PostMapping(path = "/rabbitmq/consumer/enable", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> enableRabbitMQConsumer(@RequestParam boolean enableConsumer,
                                                     @RequestParam String consumerContainerId) {

@@ -33,7 +33,7 @@ public class ToggleRabbitmqConsumer {
     public void toggleRabbitMQTopicAConsumerStartUp() {
         log.info("Entered into toggleRabbitMQTopicAConsumerStartUp :::");
         MessageListenerContainer consumerTopicA = Optional.ofNullable(
-                        rabbitListenerEndpointRegistry.getListenerContainer("consumerTopicA"))
+                        rabbitListenerEndpointRegistry.getListenerContainer("topicConsumer1"))
                 .orElseThrow(() -> new IllegalStateException("Consumer container " + "consumerTopicA" + "not found"));
         if (consumerTopicA != null) {
             log.info("Consumer Container consumerTopicA found :::");
@@ -51,7 +51,7 @@ public class ToggleRabbitmqConsumer {
 
     @EventListener(ApplicationReadyEvent.class)
     public void toggleRabbitMQTopicBConsumerStartUp() {
-        final String CONSUMER_NAME = "consumerTopicB";
+        final String CONSUMER_NAME = "topicConsumer2";
 
         try {
             MessageListenerContainer consumerTopicB = Optional.ofNullable(

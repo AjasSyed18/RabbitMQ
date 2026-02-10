@@ -32,85 +32,128 @@ public class RabbitMQConfig {
     @Value("${spring.rabbitmq.connectionTimeout}")
     public int connectionTimeout;
 
-    /*@Value("${rabbit.service.queueA}")
-    public String queueA;
-
-    @Value("${rabbit.service.queueB}")
-    public String queueB;
-
-    @Value("${rabbit.service.exchange_name}")
-    public String exchange;
-
-    @Value("${rabbit.service.routing_key}")
-    public String routingKey;*/
-
     private RabbitMqProperties rabbitMqProperties;
+
     @Autowired
     public RabbitMQConfig(RabbitMqProperties rabbitMqProperties) {
         this.rabbitMqProperties = rabbitMqProperties;
     }
 
+/* =========================
+   DIRECT EXCHANGE
+   ========================= */
+
     @Bean
-    public Queue queueA() {
-        return new Queue(rabbitMqProperties.getQueueA(), true);
+    public Queue directQueueNorth() {
+        return new Queue(rabbitMqProperties.getDirect().getQueueNorth(), false, false, true);
     }
 
     @Bean
-    public Queue queueB(){
-        return new Queue(rabbitMqProperties.getQueueB(), true);
+    public Queue directQueueSouth() {
+        return new Queue(rabbitMqProperties.getDirect().getQueueSouth(), false, false, true);
     }
 
     @Bean
-    public TopicExchange exchangeA() {
-        return new TopicExchange(rabbitMqProperties.getExchange_name());
+    public DirectExchange directExchangeNorth() {
+        return new DirectExchange(rabbitMqProperties.getDirect().getExchangeNorth());
     }
 
     @Bean
-    public TopicExchange exchangeB(){
-        return new TopicExchange(rabbitMqProperties.getExchange_name());
+    public DirectExchange directExchangeSouth() {
+        return new DirectExchange(rabbitMqProperties.getDirect().getExchangeSouth());
     }
 
     @Bean
-    public Binding bindingA(){
-        return BindingBuilder.bind(queueB()).to(exchangeB()).with(rabbitMqProperties.getRouting_key());
+    public Binding directNorthBinding() {
+        return BindingBuilder
+                .bind(directQueueNorth())
+                .to(directExchangeNorth())
+                .with(rabbitMqProperties.getDirect().getExchangeKeyNorth());
     }
 
     @Bean
-    public Binding bindingB() {
-        return BindingBuilder.bind(queueA()).to(exchangeA()).with(rabbitMqProperties.getRouting_key());
+    public Binding directSouthBinding() {
+        return BindingBuilder
+                .bind(directQueueSouth())
+                .to(directExchangeSouth())
+                .with(rabbitMqProperties.getDirect().getExchangeKeySouth());
     }
 
-    /*Fan-out Exchange*/
+    /* =========================
+   TOPIC EXCHANGE
+   ========================= */
+
     @Bean
-    public Queue queue1() {
-        return new Queue(rabbitMqProperties.getQueue1(), true);
+    public Queue topicQueueNorth() {
+        return new Queue(rabbitMqProperties.getTopic().getQueueNorth(), false, false, true);
     }
 
     @Bean
-    public Queue queue2() {
-        return new Queue(rabbitMqProperties.getQueue2(), true);
+    public Queue topicQueueSouth() {
+        return new Queue(rabbitMqProperties.getTopic().getQueueSouth(), false, false, true);
     }
 
     @Bean
-    public Queue queue3() {
-        return new Queue(rabbitMqProperties.getQueue3(), true);
-    }
-    @Bean
-    public FanoutExchange fanoutExchange(){ return new FanoutExchange(rabbitMqProperties.getFanout_exchange()); }
-
-    @Bean
-    public Binding fanOutBinding() {
-        return BindingBuilder.bind(queue1()).to(fanoutExchange());
-    }
-    @Bean
-    public Binding fanOutBinding2(){
-        return BindingBuilder.bind(queue2()).to(fanoutExchange());
-    }
-    @Bean
-    public Binding fanOutBinding3(){
-        return BindingBuilder.bind(queue3()).to(fanoutExchange());
+    public TopicExchange topicExchange() {
+        return new TopicExchange(rabbitMqProperties.getTopic().getExchange());
     }
 
+    @Bean
+    public Binding topicNorthBinding() {
+        return BindingBuilder
+                .bind(topicQueueNorth())
+                .to(topicExchange())
+                .with("topic.exchange.*");
+    }
+
+    @Bean
+    public Binding topicSouthBinding() {
+        return BindingBuilder
+                .bind(topicQueueSouth())
+                .to(topicExchange())
+                .with("topic.exchange.*");
+    }
+
+    /* =========================
+   FANOUT EXCHANGE
+   ========================= */
+
+    @Bean
+    public Queue fanoutAuditQueue() {
+        return new Queue(rabbitMqProperties.getFanout().getQueueAudit(), false, false, true);
+    }
+
+    @Bean
+    public Queue fanoutNotificationQueue() {
+        return new Queue(rabbitMqProperties.getFanout().getQueueNotification(), false, false, true);
+    }
+
+    @Bean
+    public Queue fanoutAnalyticsQueue() {
+        return new Queue(rabbitMqProperties.getFanout().getQueueAnalytics(), false, false, true);
+    }
+
+    @Bean
+    public FanoutExchange fanoutExchange() {
+        return new FanoutExchange(rabbitMqProperties.getFanout().getExchange());
+    }
+
+    @Bean
+    public Binding fanoutAuditBinding() {
+        return BindingBuilder.bind(fanoutAuditQueue()).to(fanoutExchange());
+    }
+
+    @Bean
+    public Binding fanoutNotificationBinding() {
+        return BindingBuilder.bind(fanoutNotificationQueue()).to(fanoutExchange());
+    }
+
+    @Bean
+    public Binding fanoutAnalyticsBinding() {
+        return BindingBuilder.bind(fanoutAnalyticsQueue()).to(fanoutExchange());
+    }
+
+    /*----------------------------------------------------------------------------------------------------*/
     @Bean
     public ConnectionFactory connectionFactory() {
         CachingConnectionFactory cachingConnectionFactory = new CachingConnectionFactory();

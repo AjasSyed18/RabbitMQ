@@ -32,6 +32,7 @@ public class RabbitmqController {
     @Autowired
     private ToggleRabbitmqConsumer toggleRabbitmqConsumer;
 
+/*
 
     @PostMapping(value = "/publishMsgDemo", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> publish(@RequestParam("key") String strMessage) {
@@ -43,14 +44,15 @@ public class RabbitmqController {
         respJson.put("message", "message published!");
         return ResponseEntity.ok().body(respJson.toString());
     }
+*/
 
-    @PostMapping(value = "/publishMsg/{msg}")
+   /* @PostMapping(value = "/publishMsg/{msg}")
     public void publishMsg(@PathVariable("msg") String msg) {
         MessageProperties messageProperties = new MessageProperties();
         messageProperties.setHeader("traceId", UUID.randomUUID().toString());
         Message message = messageConverter.toMessage(msg, messageProperties);
         rabbitmqProducer.sendMessage(message);
-    }
+    }*/
 
     @PostMapping(value = "/publishMsgFanout/{msg}")
     public void publishMsgFanout(@PathVariable("msg") String msg) {
@@ -62,6 +64,36 @@ public class RabbitmqController {
         rabbitmqProducer.publishFanOutMessage(message);
     }
 
+    @PostMapping(value = "/publishMsgTopic/{msg}")
+    public void publishMsgTopic(@PathVariable("msg") String msg) {
+        MessageProperties messageProperties = new MessageProperties();
+        messageProperties.setHeader("traceId", UUID.randomUUID().toString());
+        messageProperties.setContentType("application/json");
+        messageProperties.setHeader("exchange-type", "Topic");
+        Message message = messageConverter.toMessage(msg, messageProperties);
+        rabbitmqProducer.publishTopicExchangeMessage(message);
+    }
+
+    @PostMapping(value = "/publishMsgDirectNorth/{msg}")
+    public void publishMsgDirectNorth(@PathVariable("msg") String msg) {
+        MessageProperties messageProperties = new MessageProperties();
+        messageProperties.setHeader("traceId", UUID.randomUUID().toString());
+        messageProperties.setContentType("application/json");
+        messageProperties.setHeader("exchange-type", "Topic");
+        Message message = messageConverter.toMessage(msg, messageProperties);
+        rabbitmqProducer.publishDirectNorthMessage(message);
+    }
+
+   @PostMapping(value = "/publishMsgDirectSouth/{msg}")
+    public void publishMsgDirectSouth(@PathVariable("msg") String msg) {
+        MessageProperties messageProperties = new MessageProperties();
+        messageProperties.setHeader("traceId", UUID.randomUUID().toString());
+        messageProperties.setContentType("application/json");
+        messageProperties.setHeader("exchange-type", "Topic");
+        Message message = messageConverter.toMessage(msg, messageProperties);
+        rabbitmqProducer.publishDirectSouthMessage(message);
+    }
+
     @PostMapping(path = "/rabbitmq/consumer/enable", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> enableRabbitMQConsumer(@RequestParam boolean enableConsumer,
                                                     @RequestParam String consumerContainerId) {
@@ -71,14 +103,14 @@ public class RabbitmqController {
         return ResponseEntity.ok(new JSONObject().put("code", "200").put("message", response).toString());
     }
 
-    @EventListener(ApplicationReadyEvent.class)
+   /* @EventListener(ApplicationReadyEvent.class)
     public void doSomethingAfterStartup() {
         publishMsg("startUpMessage");
-        /*rabbitTemplate.convertAndSend("exchangeName", "north", payload, message -> {
+        *//*rabbitTemplate.convertAndSend("exchangeName", "north", payload, message -> {
             message.getMessageProperties().setHeader("source", "order-service");
             message.getMessageProperties().setHeader("region", "north");
             message.getMessageProperties().setHeader("traceId", UUID.randomUUID().toString());
             return message;
-        });*/
-    }
+        });*//*
+    }*/
 }

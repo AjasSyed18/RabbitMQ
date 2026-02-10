@@ -24,19 +24,48 @@ public class RabbitmqProducer {
 
     @Autowired
     private RabbitMqProperties rabbitMqProperties;
-
+/*
     public void sendMessage(Message msg) {
         rabbitTemplate.send(
                 rabbitMqProperties.getExchange_name(),   // exchange
                 rabbitMqProperties.getRouting_key(),     // routing key
                 msg                                      // message
         );
+    }*/
+
+    public void publishTopicExchangeMessage(Message msg) {
+        log.info("Published msg: {} \nto exchange: {}", msg, rabbitMqProperties.getTopic().getExchange());
+        rabbitTemplate.convertAndSend(
+                rabbitMqProperties.getTopic().getExchange(),   // order.topic.exchange
+                "topic.exchange.anything",// routing key
+                msg
+        );
     }
 
     public void publishFanOutMessage(Message msg) {
+        log.info("Published msg: {} \nto exchange: {}", msg, rabbitMqProperties.getFanout().getExchange());
         rabbitTemplate.convertAndSend(
-                rabbitMqProperties.getFanout_exchange(), // fan-out_exchange
-                "",                                      // routing key IGNORED in fanout
-                msg);                                    // message
+                rabbitMqProperties.getFanout().getExchange(), // fanout exchange
+                "",                                              // routing key ignored
+                msg                                              // message
+        );
+    }
+
+    public void publishDirectNorthMessage(Message msg) {
+        log.info("Published msg: {} \nto exchange: {}", msg, rabbitMqProperties.getDirect().getExchangeKeyNorth());
+        rabbitTemplate.convertAndSend(
+                rabbitMqProperties.getDirect().getExchangeNorth(),
+                rabbitMqProperties.getDirect().getExchangeKeyNorth(),
+                msg
+        );
+    }
+
+    public void publishDirectSouthMessage(Message msg) {
+        log.info("Published msg: {} \nto exchange: {}", msg, rabbitMqProperties.getDirect().getExchangeKeySouth());
+        rabbitTemplate.convertAndSend(
+                rabbitMqProperties.getDirect().getExchangeSouth(),
+                rabbitMqProperties.getDirect().getExchangeKeySouth(),
+                msg
+        );
     }
 }

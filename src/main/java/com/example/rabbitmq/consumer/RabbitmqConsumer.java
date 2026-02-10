@@ -50,10 +50,24 @@ public class RabbitmqConsumer {
         }
     }*/
 
-    @RabbitListener(id = "consumerTopicA", queues = "${rabbit.service.queueA}")
-    public void consumeMsgNorthMessage(Message message) {
+    @RabbitListener(id = "directConsumer1", queues = "${rabbit.service.direct.queue-north}")
+    public void consumeDirectNorthMessage(Message message) {
         try {
-            log.info("Received message: {} from queue -> 'north'", message);
+            log.info("queue -> 'north', Received message: {}", message);
+            byte[] messageBody = message.getBody();
+            String actualMsgStr = new String(messageBody);
+            log.info("Message -> {}", actualMsgStr);
+           /* byte[] bytes = message.getBody();
+            String bytesString = bytes.toString();
+            log.info("Message received -> {} from queue -> 'north'", bytesString);*/
+        } catch (Exception e) {
+            log.error("Failed to process message: {}. Error: {}", message, e.getMessage(), e);
+        }
+    }
+    @RabbitListener(id = "directConsumer2", queues = "${rabbit.service.direct.queue-south}")
+    public void consumeDirectSouthMessage(Message message) {
+        try {
+            log.info("queue -> 'south', Received message: {}", message);
             byte[] messageBody = message.getBody();
             String actualMsgStr = new String(messageBody);
             log.info("Message -> {}", actualMsgStr);
@@ -65,10 +79,13 @@ public class RabbitmqConsumer {
         }
     }
 
-    @RabbitListener(id = "consumerTopicB", queues = "${rabbit.service.queueB}")
-    public void consumeMsgSouth(String message) {
+    @RabbitListener(id = "topicConsumer1", queues = "${rabbit.service.topic.queue-north}")
+    public void consumeMsgNorthMessage(Message message) {
         try {
-            log.info("Received message: {} from queue -> 'south'", message);
+            log.info("queue -> 'north', Received message: {}", message);
+            byte[] messageBody = message.getBody();
+            String actualMsgStr = new String(messageBody);
+            //log.info("Message -> {}", actualMsgStr);
            /* byte[] bytes = message.getBody();
             String bytesString = bytes.toString();
             log.info("Message received -> {} from queue -> 'north'", bytesString);*/
@@ -77,10 +94,40 @@ public class RabbitmqConsumer {
         }
     }
 
-    @RabbitListener(id = "consumeQueue1", queues = "${rabbit.service.queue1}")
+    @RabbitListener(id = "topicConsumer2", queues = "${rabbit.service.topic.queue-south}")
+    public void consumeMsgSouth(Message message) {
+        try {
+            log.info("queue -> 'south', Received message: {}", message);
+           /* byte[] bytes = message.getBody();
+            String bytesString = bytes.toString();
+            log.info("Message received -> {} from queue -> 'north'", bytesString);*/
+        } catch (Exception e) {
+            log.error("Failed to process message: {}. Error: {}", message, e.getMessage(), e);
+        }
+    }
+
+    @RabbitListener(id = "fanoutConsumer1", queues = "${rabbit.service.fanout.queue-audit}")
     public void consumeMsgQueue1(@Payload String message) {
         try {
-            log.info("Received message: {} from queue -> 'queue1'", message);
+            log.info("queue -> 'queue1', Received message: {}", message);
+        } catch (Exception e) {
+            log.error("Failed to process message: {}. Error: {}", message, e.getMessage(), e);
+        }
+    }
+
+    @RabbitListener(id = "fanoutConsumer2", queues = "${rabbit.service.fanout.queue-notification}")
+    public void consumeMsgQueue2(@Payload String message) {
+        try {
+            log.info("queue -> 'queue2', Received message: {}", message);
+        } catch (Exception e) {
+            log.error("Failed to process message: {}. Error: {}", message, e.getMessage(), e);
+        }
+    }
+
+    @RabbitListener(id = "fanoutConsumer3", queues = "${rabbit.service.fanout.queue-analytics}")
+    public void consumeMsgQueue3(@Payload String message) {
+        try {
+            log.info("queue -> 'queue3', Received message: {}", message);
         } catch (Exception e) {
             log.error("Failed to process message: {}. Error: {}", message, e.getMessage(), e);
         }

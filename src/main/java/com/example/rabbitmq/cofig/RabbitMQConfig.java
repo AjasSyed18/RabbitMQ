@@ -177,4 +177,6 @@ public class RabbitMQConfig {
         container.setConnectionFactory(connectionFactory());
         return container;
     }
+
+
 }

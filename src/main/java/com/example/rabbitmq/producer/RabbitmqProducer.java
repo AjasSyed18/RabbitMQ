@@ -8,8 +8,6 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Properties;
-
 @Service
 @Log4j2
 public class RabbitmqProducer {
@@ -36,29 +34,11 @@ public class RabbitmqProducer {
         );
     }*/
 
-    public void publishTopicExchangeMessage(Message msg) {
-        log.info("Published msg: {} \nto exchange: {}", msg, rabbitMqProperties.getTopic().getExchange());
-        rabbitTemplate.convertAndSend(
-                rabbitMqProperties.getTopic().getExchange(),   // order.topic.exchange
-                "topic.exchange.anything",// routing key
-                msg
-        );
-    }
-
-    public void publishFanOutMessage(Message msg) {
-        log.info("Published msg: {} \nto exchange: {}", msg, rabbitMqProperties.getFanout().getExchange());
-        rabbitTemplate.convertAndSend(
-                rabbitMqProperties.getFanout().getExchange(), // fanout exchange
-                "",                                              // routing key ignored
-                msg                                              // message
-        );
-    }
-
     public void publishDirectNorthMessage(Message msg) {
         log.info("Published msg: {} \nto exchange: {}", msg, rabbitMqProperties.getDirect().getExchangeKeyNorth());
         rabbitTemplate.convertAndSend(
                 rabbitMqProperties.getDirect().getExchangeNorth(),
-                rabbitMqProperties.getDirect().getExchangeKeyNorth(),
+                rabbitMqProperties.getDirect().getExchangeKeyNorth(),  //routing key should exactly match the binding routing key
                 msg
         );
     }
@@ -67,12 +47,30 @@ public class RabbitmqProducer {
         log.info("Published msg: {} \nto exchange: {}", msg, rabbitMqProperties.getDirect().getExchangeKeySouth());
         rabbitTemplate.convertAndSend(
                 rabbitMqProperties.getDirect().getExchangeSouth(),
-                rabbitMqProperties.getDirect().getExchangeKeySouth(),
+                rabbitMqProperties.getDirect().getExchangeKeySouth(),   //routing key should exactly match the binding routing key
                 msg
         );
     }
 
-    public void publishHeadersPriorityMsg(String strMsg){
+    public void publishTopicExchangeMessage(Message msg) {
+        log.info("Published msg: {} \nto exchange: {}", msg, rabbitMqProperties.getTopic().getExchange());
+        rabbitTemplate.convertAndSend(
+                rabbitMqProperties.getTopic().getExchange(),   // order.topic.exchange
+                "topic.exchange.anything",                     // pattern matching routing key
+                msg
+        );
+    }
+
+    public void publishFanOutMessage(Message msg) {
+        log.info("Published msg: {} \nto exchange: {}", msg, rabbitMqProperties.getFanout().getExchange());
+        rabbitTemplate.convertAndSend(
+                rabbitMqProperties.getFanout().getExchange(),    // fanout exchange
+                "",                                              // routing key ignored
+                msg                                              // message
+        );
+    }
+
+    public void publishHeadersPriorityMsg(String strMsg) {
         log.info("Published msg: {} \nto exchange: {}", strMsg, rabbitMqProperties.getHeaders().getExchange());
         MessageProperties properties = new MessageProperties();
         properties.setHeader("type", "priority");
@@ -80,21 +78,20 @@ public class RabbitmqProducer {
         Message message = new Message(strMsg.getBytes(), properties);
         rabbitTemplate.convertAndSend(
                 "headers.exchange",
-                "", //routing key ignored
-                message);
+                "",                                     //routing key ignored
+                message);                                         // header matching
 
     }
 
-    public void publishHeadersStandardMsg(String strMsg){
+    public void publishHeadersStandardMsg(String strMsg) {
         log.info("Published msg: {} \nto exchange: {}", strMsg, rabbitMqProperties.getHeaders().getExchange());
         MessageProperties properties = new MessageProperties();
         properties.setHeader("type", "standard");
-        properties.setHeader("region", "south");
+        properties.setHeader("region", "sdfgffgh");
         Message message = new Message(strMsg.getBytes(), properties);
         rabbitTemplate.convertAndSend(
                 "headers.exchange",
-                "", //routing key ignored
-                message);
-
+                "",                                     //routing key ignored
+                message);                                         //header matching
     }
 }

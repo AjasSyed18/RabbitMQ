@@ -54,6 +54,16 @@ public class RabbitmqController {
         rabbitmqProducer.sendMessage(message);
     }*/
 
+   @PostMapping(value = "/publishMsgDirectSouth/{msg}")
+   public void publishMsgDirectSouth(@PathVariable("msg") String msg) {
+       MessageProperties messageProperties = new MessageProperties();
+       messageProperties.setHeader("traceId", UUID.randomUUID().toString());
+       messageProperties.setContentType("application/json");
+       messageProperties.setHeader("exchange-type", "Topic");
+       Message message = messageConverter.toMessage(msg, messageProperties);
+       rabbitmqProducer.publishDirectSouthMessage(message);
+   }
+
     @PostMapping(value = "/publishMsgFanout/{msg}")
     public void publishMsgFanout(@PathVariable("msg") String msg) {
         MessageProperties messageProperties = new MessageProperties();
@@ -82,16 +92,6 @@ public class RabbitmqController {
         messageProperties.setHeader("exchange-type", "Topic");
         Message message = messageConverter.toMessage(msg, messageProperties);
         rabbitmqProducer.publishDirectNorthMessage(message);
-    }
-
-   @PostMapping(value = "/publishMsgDirectSouth/{msg}")
-    public void publishMsgDirectSouth(@PathVariable("msg") String msg) {
-        MessageProperties messageProperties = new MessageProperties();
-        messageProperties.setHeader("traceId", UUID.randomUUID().toString());
-        messageProperties.setContentType("application/json");
-        messageProperties.setHeader("exchange-type", "Topic");
-        Message message = messageConverter.toMessage(msg, messageProperties);
-        rabbitmqProducer.publishDirectSouthMessage(message);
     }
 
     @PostMapping(value = "/publishHeadersPriority/{msg}")

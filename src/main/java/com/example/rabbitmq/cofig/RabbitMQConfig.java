@@ -52,13 +52,22 @@ public class RabbitMQConfig {
     }
 
     @Bean
-    public Queue directQueueSouth() {
-        return new Queue(rabbitMqProperties.getDirect().getQueueSouth(), false, false, true);
+    public DirectExchange directExchangeNorth() {
+        return new DirectExchange(rabbitMqProperties.getDirect().getExchangeNorth());
     }
 
     @Bean
-    public DirectExchange directExchangeNorth() {
-        return new DirectExchange(rabbitMqProperties.getDirect().getExchangeNorth());
+    public Binding directNorthBinding() {
+        return BindingBuilder
+                .bind(directQueueNorth())
+                .to(directExchangeNorth())
+                .with(rabbitMqProperties.getDirect().getExchangeKeyNorth());  //routing key should exactly match the binding routing key
+    }
+
+
+  /*  @Bean
+    public Queue directQueueSouth() {
+        return new Queue(rabbitMqProperties.getDirect().getQueueSouth(), false, false, true);
     }
 
     @Bean
@@ -67,21 +76,34 @@ public class RabbitMQConfig {
     }
 
     @Bean
-    public Binding directNorthBinding() {
-        return BindingBuilder
-                .bind(directQueueNorth())
-                .to(directExchangeNorth())
-                .with(rabbitMqProperties.getDirect().getExchangeKeyNorth());
-    }
-
-    @Bean
     public Binding directSouthBinding() {
         return BindingBuilder
                 .bind(directQueueSouth())
                 .to(directExchangeSouth())
-                .with(rabbitMqProperties.getDirect().getExchangeKeySouth());
-    }
+                .with(rabbitMqProperties.getDirect().getExchangeKeySouth());  //routing key should exactly match the binding routing key
+    }*/
 
+//using declarables to declare queue, exchange and binding in a single bean
+    @Bean
+    public Declarables directSouthDeclarables() {
+        Queue queueSouth = new Queue(
+                rabbitMqProperties.getDirect().getQueueSouth(),
+                false,   // durable
+                false,   // exclusive
+                true     // autoDelete
+        );
+        DirectExchange exchangeSouth =
+                new DirectExchange(rabbitMqProperties.getDirect().getExchangeSouth());
+        Binding bindingSouth = BindingBuilder
+                .bind(queueSouth)
+                .to(exchangeSouth)
+                .with(rabbitMqProperties.getDirect().getExchangeKeySouth());
+        return new Declarables(
+                queueSouth,
+                exchangeSouth,
+                bindingSouth
+        );
+    }
     /* =========================
    TOPIC EXCHANGE
    ========================= */
@@ -106,7 +128,7 @@ public class RabbitMQConfig {
         return BindingBuilder
                 .bind(topicQueueNorth())
                 .to(topicExchange())
-                .with("topic.exchange.*");
+                .with("topic.exchange.*");   //producer routing key should match the routing key
     }
 
     @Bean
@@ -114,7 +136,7 @@ public class RabbitMQConfig {
         return BindingBuilder
                 .bind(topicQueueSouth())
                 .to(topicExchange())
-                .with("topic.exchange.*");
+                .with("topic.exchange.*");   //producer routing key should match the routing key
     }
 
     /* =========================
@@ -153,19 +175,21 @@ public class RabbitMQConfig {
 
     @Bean
     public Binding fanoutAnalyticsBinding() {
-        return BindingBuilder.bind(fanoutAnalyticsQueue()).to(fanoutExchange());
+        return BindingBuilder
+                .bind(fanoutAnalyticsQueue())
+                .to(fanoutExchange());             // routing key is ignored in fanout exchange
     }
 
     /* =========================
    HEADER EXCHANGE
    ========================= */
     @Bean
-    public Queue queuePriority(){
+    public Queue queuePriority() {
         return new Queue("headers.priority.queue", false, false, true);
     }
 
     @Bean
-    public Queue queueStandard(){
+    public Queue queueStandard() {
         return new Queue("headers.standard.queue", false, false, true);
     }
 
@@ -183,7 +207,7 @@ public class RabbitMQConfig {
         return BindingBuilder
                 .bind(queuePriority())
                 .to(headersExchange())
-                .whereAll(headers)
+                .whereAll(headers)         // ALL headers must match with the headers in producer
                 .match();
     }
 
@@ -192,13 +216,16 @@ public class RabbitMQConfig {
         Map<String, Object> headers = new HashMap<>();
         headers.put("type", "standard");
         headers.put("region", "south");
-
         return BindingBuilder
                 .bind(queueStandard())
                 .to(headersExchange())
-                .whereAll(headers)   // AND logic (recommended)
+                .whereAny(headers)         // Any headers must match with the headers in producer
                 .match();
     }
+    // Similarly, where() lets you define custom logic or match on a single header.
+    // Match only this one header
+    // .where("type").matches("priority")
+
     /*----------------------------------------------------------------------------------------------------*/
     @Bean
     public ConnectionFactory connectionFactory() {
@@ -221,6 +248,9 @@ public class RabbitMQConfig {
     SimpleMessageListenerContainer simpleMessageListenerContainer() {
         SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
         container.setConnectionFactory(connectionFactory());
+        container.setConcurrentConsumers(100);
+        container.setReceiveTimeout(50000);
+        //container.setQueues();  // only allwing the queues to consume from
         return container;
     }
 

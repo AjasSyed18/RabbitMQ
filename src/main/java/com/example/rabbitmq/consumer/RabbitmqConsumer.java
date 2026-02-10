@@ -143,7 +143,7 @@ public class RabbitmqConsumer {
         }
     }
 
-    @RabbitListener(id = "StandardConsumer", queues = "${rabbit.service.headers.queue-priority}")
+    @RabbitListener(id = "StandardConsumer", queues = "${rabbit.service.headers.queue-standard}")
     public void standardConsumer(@Payload String message) {
         try {
             log.info("queue -> {}, Received message: {}", rabbitMqProperties.getHeaders().getQueueStandard(), message);
